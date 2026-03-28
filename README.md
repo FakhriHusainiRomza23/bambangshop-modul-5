@@ -48,15 +48,15 @@ You can install Postman via this website: https://www.postman.com/downloads/
     (You might want to use `cargo check` if you only need to verify your work without running the app.)
 
 ## Mandatory Checklists (Publisher)
--   [ ] Clone https://gitlab.com/ichlaffterlalu/bambangshop to a new repository.
+-   [x] Clone https://gitlab.com/ichlaffterlalu/bambangshop to a new repository.
 -   **STAGE 1: Implement models and repositories**
-    -   [ ] Commit: `Create Subscriber model struct.`
-    -   [ ] Commit: `Create Notification model struct.`
-    -   [ ] Commit: `Create Subscriber database and Subscriber repository struct skeleton.`
-    -   [ ] Commit: `Implement add function in Subscriber repository.`
-    -   [ ] Commit: `Implement list_all function in Subscriber repository.`
-    -   [ ] Commit: `Implement delete function in Subscriber repository.`
-    -   [ ] Write answers of your learning module's "Reflection Publisher-1" questions in this README.
+    -   [x] Commit: `Create Subscriber model struct.`
+    -   [x] Commit: `Create Notification model struct.`
+    -   [x] Commit: `Create Subscriber database and Subscriber repository struct skeleton.`
+    -   [x] Commit: `Implement add function in Subscriber repository.`
+    -   [x] Commit: `Implement list_all function in Subscriber repository.`
+    -   [x] Commit: `Implement delete function in Subscriber repository.`
+    -   [x] Write answers of your learning module's "Reflection Publisher-1" questions in this README.
 -   **STAGE 2: Implement services and controllers**
     -   [ ] Commit: `Create Notification service struct skeleton.`
     -   [ ] Commit: `Implement subscribe function in Notification service.`
@@ -77,7 +77,10 @@ This is the place for you to write reflections:
 ### Mandatory (Publisher) Reflections
 
 #### Reflection Publisher-1
+Dalam konsep Observer Pattern, penggunaan interface atau trait sebenarnya bertujuan agar Subject (Publisher) dapat berkomunikasi dengan berbagai jenis Observer yang memiliki perilaku berbeda secara polimorfik. Namun, dalam kasus BambangShop saat ini, penggunaan sebuah Single Model Struct sudah dianggap cukup karena semua subscriber memiliki struktur data dan mekanisme komunikasi yang seragam, yaitu melalui pemanggilan HTTP endpoint yang tersimpan pada field url. Kita baru akan benar-benar membutuhkan trait jika di masa depan muncul kebutuhan untuk mendukung berbagai jenis subscriber dengan metode notifikasi yang berbeda-beda, misalnya satu subscriber melalui protokol HTTP, sementara yang lain melalui Email atau SMS, di mana masing-masing membutuhkan logika pengiriman yang spesifik.
 
 #### Reflection Publisher-2
+Penggunaan DashMap jauh lebih diperlukan dibandingkan Vec (list) biasa dalam kasus ini karena efisiensi dan integritas data yang ditawarkannya. Mengingat id pada produk dan url pada subscriber dimaksudkan untuk menjadi pengenal unik, DashMap memungkinkan kita untuk melakukan operasi pencarian, penambahan, dan penghapusan data dengan kompleksitas waktu rata-rata O(1). Jika kita menggunakan Vec, setiap kali aplikasi ingin memastikan keunikan data atau menghapus subscriber tertentu, kita harus melakukan iterasi ke seluruh elemen (O(n)) yang akan memperlambat performa seiring bertambahnya jumlah data. Selain itu, DashMap secara otomatis menangani pemetaan kunci unik sehingga risiko terjadinya duplikasi data dapat diminimalisasi dibandingkan dengan mengelola logika manual pada sebuah list.
 
 #### Reflection Publisher-3
+Berdasarkan pemahaman design pattern, DashMap dan Singleton bukanlah dua hal yang saling meniadakan, melainkan bekerja secara berdampingan dalam arsitektur aplikasi Rust ini. Penggunaan variabel statis SUBSCRIBERS yang dibungkus dengan lazy_static! pada dasarnya sudah merupakan implementasi dari Singleton Pattern, di mana kita memastikan hanya ada satu instance penyimpanan data di seluruh siklus hidup aplikasi. Namun, karena Rust memiliki aturan memory safety dan concurrency yang sangat ketat, Singleton saja tidak cukup untuk menangani akses dari banyak thread secara bersamaan. Di sinilah DashMap berperan sebagai thread-safe HashMap yang menyediakan mekanisme penguncian (locking) internal, sehingga kita bisa memiliki satu instance data (Singleton) yang aman untuk dibaca dan ditulis oleh banyak proses sekaligus tanpa menyebabkan data race atau crash.
